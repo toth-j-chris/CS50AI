@@ -1,0 +1,229 @@
+logic in AI
+sentence - an assertion about the world in a knowledge represntation language
+
+propositional logic
+poposition symbols
+    symbols representing some fact about the world
+    e.g. P, Q
+want to connect these symbols together:
+    logical connectives
+        not
+        and
+        or
+        implication
+        biconditional
+
+Not !
+    !false = true
+    !true = false
+
+And ^
+    combine two propositional logic sentences
+    if both are true, evaluates to true
+
+Or v
+    also combines two propositional logic sentences
+    true only if both statements are false
+    evaluates to true if either statement is true, or both
+
+Implication =>
+    if P, then Q
+    P implies Q
+    if P is true, Q must be true, otherwise P -> Q is false
+    if P is not true, we make no claim about whether Q is true, implication still evaluates to true
+    only false if P is true and Q is false
+
+Biconditional <=>
+    condition that goes in both directions
+    if and only if
+    only true when P and Q are the same
+
+Knowledge Base (KB)
+    a set of sentences that our AI or agent knows to be true
+
+Entailment |=
+    alpha entails beta
+    in every model in which alpha is true, beta is also true
+    this is what we are trying to bring about in AI
+
+Inference
+    the process of deriving new sentences from old ones
+
+Model Checking
+    to determine if our knowledge base entails alpha (some query)
+    we need to enumerate every possible model
+    if in every model where the knowledge base is true, alpha is also true, then KB must entail alpha
+
+Knowledge Engineering
+    distilling a problem down to its propositional symbols
+    make it representable to a computer
+    encoding ideas
+
+Inference Rules
+
+Modus Ponens:
+    if a => b
+    and a
+    then b
+
+And Elimination
+    if a and b
+    then a
+    also then b
+
+Double Negation Elimination
+    if !(!a)
+    then a
+
+Implication Elimination
+    if a => b
+    then !a or b
+    turns an implication into an or statement
+
+Biconditional Elimination
+    if a <=> b
+    then (a => b) and (b => a)
+
+De Morgan's Law
+    if !(a and b)
+    then !a or !b
+
+    if !(a or b)
+    then !a and !b
+
+Distributive Property
+    if (a and (b or c))
+    then (a and b) or (a and c)
+
+    if (a or (b and c))
+    then (a or b) and (a or c)
+
+Applying Search to Knowledge = Theorem Proving
+initial state: starting knowledge base
+asctions: inference rules
+transition model: new knowledge base after inference
+goal test: check statement we're trying to prove
+path cost function: number of steps in proof
+
+Resolution
+Complementary literals
+    if P or Q
+    and !P
+    then Q
+
+    if P or Q1 or Q2 or Q3 ... or Qn
+    and !P
+    then Q1 or Q2 or Q3 ... or Qn
+
+    if P or Q
+    and !P or R
+    then Q or R
+
+clause
+    a disjunction of literals
+    disjunction: collection of literals connected by "or"
+        similar to conjunction, which are literals connected by "and"
+
+conjunctive normal form 
+    logical sentence that is a conjunction of clauses
+
+we can take any logical formula and convert it to conjunctive normal form using inference rules
+
+Conversion to CNF
+- Eliminate biconditionals
+    turn a <=> b to (a => b) and (b => a)
+- Eliminate implications
+- Move !s inwards using De Morgan's Laws
+- Use distributive law to distribute "or" wherever possible
+
+(P v Q) => R
+!(P v Q) v R
+(!P ^ !Q) v R
+(!P v R) ^ (!Q v R)
+
+Inference by Resolution
+    P
+    !P
+    ___
+    ()
+
+    to determine if KB |= a:
+        check if (KB ^ !a) is a contradiction
+            if so, then KB |= a
+            otherwise, no entailment
+
+        convert (KB ^ !a) to CNF
+        keep checking to see if we can use resolution to produce a new clause
+            if we ever produce the empty clause (equivalent to False), we have a contradiction, and KB |= a
+            otherwise, if we can't add new clauses, no entailment
+
+    Does (A v B) ^ (!B v C) ^ (!C) |= A ?
+
+First-Order Logic
+    different from propositional logic
+
+Constant Symbols
+    things
+Predicate Symbols
+    properties of the things that hold true or false
+
+Person(Minerva) # Minerva is a person
+House(Gryffindor) # Gryffindor is a house
+
+!House(Minerva) # Minerva is not a house
+
+BelongsTo(Minerva, Gryffindor) # Minerva belongs to Gryffindor
+
+Universal Quantification (symbol is upside-down 'A')
+    for all x. BelongsTo(x, Gryffindor) => !BelongsTo(x, Hufflepuff)
+    For all objects s, if x belongs to Gryffindor, then x does not belong to Hufflepuff
+
+Existential Quantification (symbol is backwards 'E')
+    some expression will be true for some values of a variable 
+    there exists an x such that House(x) ^ BelongsTo(Minerva, x)
+    there is an object x such that x is a house and Minerva belongs to x
+
+1. He => Ha
+2. He
+3. R ^ !R
+4. Ha
+5. !Ha v He
+6. R v He
+
+6 entails 2
+R v He |= He
+R v He ^ !He # distributive property
+(R v He) ^ (R v !He) # fin
+
+1 entails 4
+He => Ha |= Ha
+He => Ha ^ !Ha # implication elimination
+!He v Ha ^ !Ha # distributive property
+(!He v Ha) ^ (!He v !Ha) # fin
+
+6 entails 3
+R v He |= R ^ !R
+R v He ^ !(R ^ !R) # De Morgan's and Double Negation
+(R v He) ^ (!R v R) # fin 
+
+2 entails 5
+He |= !Ha v He
+He ^ !(!Ha v He) # De Morgan's and Double Negation
+He ^ Ha ^ !He # complementary literals imply empty clause
+{} # fin
+
+1 entails 2
+He => Ha |= He
+He => Ha ^ !He # implication elimination
+!He v Ha ^ !He # distributive
+(!He v Ha) ^ (!He v !He) # factoring duplicates
+!He v Ha ^ !He # fin
+
+5 entails 6
+!Ha v He |= R v He
+!Ha v He ^ !(R v He) # de morgans
+!Ha v He ^ !R ^ !He # complementary literals
+!Ha ^ !R # fin
+
+A v B ^ !(A ^ B)
+(A v B) ^ (!A v !B)
